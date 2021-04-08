@@ -1,0 +1,267 @@
+Notes for creating a Django-Ploty app:
+- Have django_plotly_dash installed: pip install django_plotly_dash
+- Install: pip install channels daphne redis django-redis channels-redis
+- Have django installed. 
+
+0. Createdjango project:  django-admin startproject <project_name>
+1. Create django app: python manage.py startapp <appname>
+2. Inside the project folder (not the app one, nor main folder), create a folder "templates" if it doesn't exist.
+3. Inside that project template folder, create a 'base.html' file 
+4. Inside the app folder create a "templates" folder
+5. Create another folder called <appname> inside the templates folder of the app folder 
+6. Create an "welcome.html" files inside the <appname> app template folder. This will be the html file to load the ploty graphs for this app. 
+7. Inside the app folder (not project folder nor main folder) add urls.py file for the app urls. This urls will then be mapped to the project urls file. 
+In the newly created urls file, add:
+
+    from django.urls import path
+    from . import views
+    from <projectname>.dash_apps.finished_apps import <appname>#<-Import all plotly apps here
+
+    urlpatterns = [
+    path('', views.home, name='home')
+        ]
+
+
+8. In the views file, add a path to the welcome.html file:
+
+    def home(requests):
+    return render(requests, '<appname>/welcome.html') 
+
+9. In the settings file, insert in INSTALLED APPS list:
+    'django_plotly_dash.apps.DjangoPlotlyDashConfig',
+    'channels',
+    'channels_redis',
+    'app_name.apps.AppnameConfig',
+    
+In MIDDLEWARE, add: 
+
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django_plotly_dash.middleware.BaseMiddleware',
+    'django_plotly_dash.middleware.ExternalRedirectionMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+ROOT_URLCONF = '<projectname>.urls'
+
+
+In TEMPLATES, add DIRS:
+
+	'DIRS': [os.path.join(BASE_DIR, 'templates')],
+
+
+10. In the project urls file (not the app one), make sure the "include" function is imported:
+from django.urls import path, include
+
+11. In the project urls file (not the app one), route the urls to the app urls file, by adding:
+path('', include('<app_name>.urls')),#This routes to the app urls individual urls.py file. 
+path('django_plotly_dash/', include('django_plotly_dash.urls')),#This makes tha plotly-dash apps work with the django urls work. 
+
+12. Inside the project template folder (not app folders), where the base.html file is, create a folder named "partials" to add a html template and break it out in sections. Sections will be 
+saved in the partials folder while the base.html will contain the main base. Themes can be downloaed from https://startbootstrap.com/
+
+13. Once a theme has been downloaded, most files are non useful pages. What we need is the folders: css, images, js, scss, vendor, fonts and the index file.
+
+14. In the project folder (where the settings files is), create a folder called static and add files from theme: css, images, js, scss, fonts, vendor. 
+
+15. Copy the index file from the theme in the templates folder in the main folder. 
+
+16. In the settings file, add all static content added to the folder from the theme, by adding all the way to the bottom:
+STATICFILES_LOCATION = 'static'
+STATIC_URL = '/static/'
+STATIC_ROOT = 'static'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, '<projectname>/static')
+]
+
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+
+17. If you want to add a database, add a databse in the settings file. For firebase this is not needed. 
+
+17.1 Create a Postgres DB (assuming the GUI app is already installed in your computer). 
+17.2 Install postgres in the virtual env pip install psycopg2. If django doesn't like that install, do then pip install psycopg2-binary
+17.3 In the settings file under DATABASES, add the postgrest DB:
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'name_of_database_created_in_step_17.1',
+        'USER': 'postgres', #(or whatever user was assigned to the database when created)
+        'PASSWORD': 'whatever_password_was_assigned',
+        'HOST': 'localhost',#This might change based on where the DB is hosted. 
+    }
+}
+
+17.4 Run in CLI:
+python manage.py makemigrations
+python manage.py migrate   
+
+18. Run in CLI:
+python manage.py collectstatic 
+
+This will collect (and properly copy the folder static (and all its contents) to the main folder (one hierarchy above the project folder), alongise the manage.py file.
+
+If new files are added, they should be added to the projects static folder in the main folder (where manage.py is) and re-run python manage.py collectstatic. Never copy direclty in the main static folder.
+
+
+19. Break into partials the Index HTML file. Partial html files will be saved in the partials folder inside the templates project folder. The section 'Content Row' in the index file can be deletd. 
+In the index html file, cut the sidebar section aand copy it in a new file called _sidebar.html 
+Do the same for Topbar, and Footer 
+
+
+20. Inside the index file, add where the content will be, by adding:
+<div class="row">
+{% block content %}
+{% endblock %}
+</div>
+
+21. Erase all content from base.html and copy the entire content of the index file to it. 
+
+22. Where sidebar, topbar and fotter were, add for every partial:
+{% include 'partials/_topbar.html %}
+...
+{% include 'partials/_sidebar.html %}
+...
+{% include 'partials/_footer.html %}
+
+23. In the base.html, all the way to the top, firt like, add static files by adding:
+{% load static %}
+{% load staticfiles %}
+
+24. In the base file, change all the href location to the django insertions:
+For example, from:
+<link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+
+to:
+ <link href="{% static "vendor/fontawesome-free/css/all.min.css" %}" rel="stylesheet" type="text/css">
+
+Do the same for the js script ones. For example:
+
+<script src="{% static "vendor/jquery/jquery.min.js" %}"></script>
+
+25. In the welcome.html page in the app template folder, delete all content and include what the plotly app would be (go to step 30 to see name of app):
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    {% load plotly_dash %}
+<h1>Home Page</h1>
+    <div class = "{% plotly_class name='SimpleExample' %} card" style="height: 100%; width: 100%">
+    {% plotly_app name='SimpleExample' ratio=0.65  %}
+
+{% endblock %}
+
+26. In the settings file, add the template pack bootstrap (after the USE_TZ = True):
+MASCOBOT_TEMPLATE_PACK = 'bootstrap4'
+
+27. Inside the project folder (alongside the settings file), create a file called routing.py with:
+from channels.routing import ProtocolTypeRouter
+
+application = ProtocolTypeRouter({
+    
+})
+
+28. In the settings file, add after the MASCOBOT_TEMPLATE_PACK = 'bootstrap4' (before STATIC lines):
+
+ASGI_APPLICATION = '<project_name>.routing.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('127.0.0.1', 6379),],
+        },
+    },
+}
+
+PLOTLY_DASH = {
+
+    # Route used for the message pipe websocket connection
+    "ws_route" :   "dpd/ws/channel",
+
+    # Route used for direct http insertion of pipe messages
+    "http_route" : "dpd/views",
+
+    # Flag controlling existince of http poke endpoint
+    "http_poke_enabled" : True,
+
+    # Insert data for the demo when migrating
+    "insert_demo_migrations" : False,
+
+    # Timeout for caching of initial arguments in seconds
+    "cache_timeout_initial_arguments": 60,
+
+    # Name of view wrapping function
+    "view_decorator": None,
+
+    # Flag to control location of initial argument storage
+    "cache_arguments": True,
+
+    # Flag controlling local serving of assets
+    "serve_locally": False,
+}
+
+# Staticfiles finders for locating dash app assets and related files
+STATICFILES_FINDERS = [
+
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+
+    'django_plotly_dash.finders.DashAssetFinder',
+    'django_plotly_dash.finders.DashComponentFinder',
+    'django_plotly_dash.finders.DashAppDirectoryFinder',
+]
+
+# Plotly components containing static content that should
+# be handled by the Django staticfiles infrastructure
+
+PLOTLY_COMPONENTS = [
+
+    # Common components
+    'dash_core_components',
+    'dash_html_components',
+    'dash_renderer',
+
+    # django-plotly-dash components
+    'dpd_components',
+   
+]
+
+29. Inside the app folder, create a folder named dash_apps and inside it create another folder called "finished_apps".
+
+30. Inside the finished apps folder, create a dash app named <SimpleExample> with a python file dash_app_name.py with the header.
+Check in step 25 for HTML insertion in the welcome.html file with the name of the app. App names need to match (...{% plotly_app name='SimpleExample' ratio=0.65  %} ):
+import dash_core_components as dcc
+import dash_html_components as html
+from dash.dependencies import Input, Output
+import plotly.graph_objs as go
+from django_plotly_dash import DjangoDash
+import plotly.express as px  # (version 4.7.0)
+import pandas as pd
+
+
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+
+app = DjangoDash('SimpleExample', external_stylesheets=external_stylesheets)#
+
+31. In the base.html file, we need to include a js script that will allow the pllotly apps to render:
+Before the first <head> in the top, add <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+32. Make sure all plotly apps are imported in the app folder urls.py file (as described in step 7):
+    from django.urls import path
+    from . import views
+    from <projectname>.dash_apps.finished_apps import <appname>#<-Import all plotly apps here
+
+
+32. Re-run one more time:
+python manage.py collectstatic
+python manage.py makemigrations 
+python manage.py migrate    
+
+33. Done! Now build apps in the finsihed app folder. To run python manage.py runserver 
+

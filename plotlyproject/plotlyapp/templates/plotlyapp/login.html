@@ -1,0 +1,123 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Login</title>
+  <!-- base:css -->
+  <link rel="stylesheet" href={% static "vendors/typicons.font/font/typicons.css" %}>
+  <link rel="stylesheet" href={% static "vendors/css/vendor.bundle.base.css" %}>
+  <!-- endinject -->
+  <!-- plugin css for this page -->
+  <!-- End plugin css for this page -->
+  <!-- inject:css -->
+  <link rel="stylesheet" href= {% static "css/vertical-layout-light/style.css" %}>
+  <!-- endinject -->
+  <link rel="shortcut icon" href= {% static "images/favicon.png" %}/>
+</head>
+
+<body>
+  <div class="container-scroller">
+    <div class="container-fluid page-body-wrapper full-page-wrapper">
+      <div class="content-wrapper d-flex align-items-stretch auth auth-img-bg">
+        <div class="row flex-grow">
+          {% block content %}
+          <div class="col-lg-6 d-flex align-items-center justify-content-center">
+            <div class="auth-form-transparent text-left p-3">
+              <div class="brand-logo">
+                <img src= {% static "images/logo.svg" alt="logo" %}>
+              </div>
+              {% if post_register_message %}				
+						      <div class="text-center p-t-5">
+						        <a class="txt1" >
+							        {{ post_register_message }}
+						        </a>
+						      </div>
+              {% else %}
+                  <h4>Welcome back!</h4>
+                  <h6 class="font-weight-light">Happy to see you again!</h6>
+
+					    {% endif %}
+
+              {{ form.non_field_errors }}
+              
+              <form action="" class="pt-3" method="POST">
+                {% csrf_token %}
+
+                <div class="form-group">
+                  <label for = "Email">Email</label>
+                  <div class="input-group">
+                    <div class="input-group-prepend bg-transparent">
+                      <span class="input-group-text bg-transparent border-right-0">
+                        <i class="typcn typcn-mail text-primary"></i>
+                      </span>
+                    </div>
+                    {{ form.Email.errors }}
+                    <input type="email" id = "Email" class="form-control form-control-lg border-left-0" name="Email" placeholder="Email" required>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="pwd">Password</label>
+                  <div class="input-group">
+                    <div class="input-group-prepend bg-transparent">
+                      <span class="input-group-text bg-transparent border-right-0">
+                        <i class="typcn typcn-lock-closed-outline text-primary"></i>
+                      </span>
+                    </div>
+                    {{ form.pwd.errors }}
+                    <input type="password" class="form-control form-control-lg border-left-0" id="pwd" name="pwd" placeholder="Password" required >                      
+                    
+                  </div>
+                </div>
+                {% if message %}				
+						      <div class="text-center p-t-5">
+						        <a class="txt1" >
+							        {{ message }}
+						        </a>
+						      </div>
+					      {% endif %}
+
+                <div>
+                  <button type="button" class="btn btn-link float-right" onclick = "location.href = '{% url 'recovery' %}'"> Forgot password?</a>
+                </div>
+
+                <div class="my-3">
+                  <input class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn" type="submit" value="submit">
+                </div>
+                <div class="text-center mt-4 font-weight-light">
+                  Don't have an account? &nbsp &nbsp<button type="button" class="btn btn-outline-dark" onclick = "location.href = '{% url 'register' %}'"> Register</a>
+                </div>
+
+              </form>
+            </div>
+          </div>
+          {% endblock %}
+
+          <div class="col-lg-6 login-half-bg d-flex flex-row">
+            <p class="text-white font-weight-medium text-center flex-grow align-self-end">Copyright &copy; 2021 Mascobot.  All rights reserved.</p>
+          </div>
+        </div>
+      </div>
+      <!-- content-wrapper ends -->
+    </div>
+    <!-- page-body-wrapper ends -->
+  </div>
+  <!-- container-scroller -->
+  <!-- base:js -->
+  <script src= {% static "vendors/js/vendor.bundle.base.js" %}></script>
+  <!-- endinject -->
+  <!-- inject:js -->
+  <script src= {% static "js/off-canvas.js" %}></script>
+  <script src= {% static "js/hoverable-collapse.js" %}></script>
+  <script src= {% static "js/template.js" %}></script>
+  <script src= {% static "js/settings.js" %}></script>
+  <script src= {% static "js/todolist.js" %}></script>
+  <!-- endinject -->
+</body>
+
+</html>
