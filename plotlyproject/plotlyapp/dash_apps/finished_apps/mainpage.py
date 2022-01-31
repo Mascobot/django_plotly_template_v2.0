@@ -5,6 +5,7 @@ import plotly.graph_objs as go
 from django_plotly_dash import DjangoDash
 import plotly.express as px  # (version 4.7.0)
 import pandas as pd
+import os
 
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
@@ -12,11 +13,11 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = DjangoDash('MainPage', external_stylesheets=external_stylesheets)#
 
 # Import and clean data (importing csv into pandas)
-df = pd.read_csv("/home/mastergpuraz/Desktop/django-plotly-appv2.0/plotlyproject/plotlyapp/dash_apps/finished_apps/intro_bees.csv")
-
+home_path = os.getcwd()
+df = pd.read_csv(os.path.join(home_path,"plotlyapp/dash_apps/finished_apps/intro_bees.csv"))
 df = df.groupby(['State', 'ANSI', 'Affected by', 'Year', 'state_code'])[['Pct of Colonies Impacted']].mean()
 df.reset_index(inplace=True)
-print(df[:5])
+
 
 # ------------------------------------------------------------------------------
 # App layout
@@ -51,8 +52,6 @@ app.layout = html.Div([
     [Input(component_id='slct_year', component_property='value')]
 )
 def update_graph(option_slctd):
-    print(option_slctd)
-    print(type(option_slctd))
 
     container = "The year chosen by user was: {}".format(option_slctd)
 

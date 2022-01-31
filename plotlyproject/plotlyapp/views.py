@@ -5,7 +5,6 @@ from django.conf import settings
 from django.shortcuts import redirect
 from . import forms
 import os
-
 import firebase_admin
 from firebase_admin import credentials
 #from firebase_admin import db #If in use with a firebase database.
@@ -15,15 +14,16 @@ import pyrebase
 #################################################################
 #Variables to change with custom data:
 apiKey = ""
-authDomain = ""
-projectId = ""
-storageBucket = ""
-messagingSenderId = ""
+authDomain = "XXXX.firebaseapp.com"
+projectId = "XXXX"
+storageBucket = "XXXX.appspot.com"
+messagingSenderId = "00000000"
 appId = ""
 
-databaseURL = ""#In example: "databaseURL": "https://databaseName.firebaseio.com",
+databaseURL = projectId + ".firebaseio.com"#In example: "databaseURL": "https://databaseName.firebaseio.com",
 
-json_file_path = ""#This could be a global variable/file path given in CLI
+path = ''#Path to json file folder 
+json_file_path = os.path.join(path, "XXXXX.json")#This could be a global variable/file path given in CLI
 
 ################################################################## END of varibles to change.
 
@@ -55,8 +55,8 @@ def home(request):
     return redirect(login)#redirect now to login page, this can be replaced with genral home page. Change also URLs file in app folder.
     
 def welcome(request):
-    global post_top_message, full_name
-    if request.session.has_key('uid'):
+    global post_top_message
+    if request.session.has_key('uid') and full_name != '':
         return render(request, 'plotlyapp/welcome.html', {'username':full_name})
     else:
         post_top_message = 'Please login with your account'
@@ -143,9 +143,9 @@ def register(request):
                                 return_message = str(e)           
                             return render(request, 'plotlyapp/register.html', {'message':return_message})  
                         
-                    else:
-                        return_message = 'This organization has not been approved to create an account. Please contact support.'
-                        return render(request, 'plotlyapp/register.html', {'message':return_message})
+                    else: pass
+                return_message = 'This organization has not been approved to create an account. Please contact support.'
+                return render(request, 'plotlyapp/register.html', {'message':return_message})
     
     else:
         return render(request, 'plotlyapp/register.html')
@@ -195,14 +195,13 @@ def login(request):
         post_top_message = False
         return render(request, 'plotlyapp/login.html', message) 
     else:
-        return render(request, 'plotlyapp/login.html', message)                
+        return render(request, 'plotlyapp/login.html')                
 
 def recovery(request):
     global post_top_message
     authD.logout(request)
     if request.method == 'POST':
         recovery_form = forms.RecoveryForm(request.POST)
-        print ('Entered POST')
         if recovery_form.is_valid():
             Email = recovery_form.cleaned_data['Email']
             pyrebase_auth = pyrebase.auth()
