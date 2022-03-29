@@ -31,7 +31,7 @@ In the newly created urls file, add:
     'django_plotly_dash.apps.DjangoPlotlyDashConfig',
     'channels',
     'channels_redis',
-    'app_name.apps.AppnameConfig',
+    '<appname>.apps.<Appname>Config',
     
 In MIDDLEWARE, add: 
 
