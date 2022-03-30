@@ -123,11 +123,11 @@ Do the same for Topbar, and Footer
 21. Erase all content from base.html and copy the entire content of the index file to it. 
 
 22. Where sidebar, topbar and fotter were, add for every partial:
-{% include 'partials/_topbar.html %}
+{% include 'partials/_topbar.html' %}
 ...
-{% include 'partials/_sidebar.html %}
+{% include 'partials/_sidebar.html' %}
 ...
-{% include 'partials/_footer.html %}
+{% include 'partials/_footer.html' %}
 
 23. In the base.html, all the way to the top, firt like, add static files by adding:
 {% load static %}
