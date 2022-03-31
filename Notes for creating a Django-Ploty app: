@@ -169,6 +169,9 @@ application = ProtocolTypeRouter({
 28. In the settings file, add after the MASCOBOT_TEMPLATE_PACK = 'bootstrap4' (before STATIC lines):
 
 ASGI_APPLICATION = '<project_name>.routing.application'
+or, if it gives a path error:
+ASGI_APPLICATION = 'routing.application'
+
 
 CHANNEL_LAYERS = {
     'default': {
